@@ -38,7 +38,11 @@ std::string GetSettingsFile()
       settingFile.at(settingFile.size() - 1) == '/')
     settingFile.append("ADSPFreeSurrAddonSettings.xml");
   else
+#ifdef TARGET_WINDOWS
+	  settingFile.append("\\ADSPFreeSurrAddonSettings.xml");
+#else
     settingFile.append("/ADSPFreeSurrAddonSettings.xml");
+#endif
   return settingFile;
 }
 
