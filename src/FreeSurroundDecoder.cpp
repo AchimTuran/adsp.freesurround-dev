@@ -30,7 +30,7 @@
 #include <vector>
 
 #if defined(TARGET_WINDOWS)
-  #include <minwindef.h>
+  #include <algorithm>
 #endif
 
 #include "FreeSurroundDecoder.h"
