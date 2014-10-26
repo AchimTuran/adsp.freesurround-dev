@@ -29,6 +29,10 @@
 #include <cmath>
 #include <vector>
 
+#if defined(TARGET_WINDOWS)
+  #include <stdlib.h>
+#endif
+
 #include "FreeSurroundDecoder.h"
 
 const float pi = 3.141592654f;
@@ -36,8 +40,8 @@ const float epsilon = 0.000001f;
 using namespace std;
 
 #ifndef TARGET_WINDOWS
-#undef min
-#undef max
+  #undef min
+  #undef max
 #endif // !TARGET_WINDOWS
 
 // implementation of the shell class
