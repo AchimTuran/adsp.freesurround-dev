@@ -19,9 +19,9 @@
  *
  */
 
-#include "xbmc/libXBMC_addon.h"
-#include "xbmc/libXBMC_adsp.h"
-#include "xbmc/libXBMC_gui.h"
+#include "kodi/libXBMC_addon.h"
+#include "kodi/libXBMC_adsp.h"
+#include "kodi/libXBMC_gui.h"
 
 class CDSPProcess_FreeSurround;
 

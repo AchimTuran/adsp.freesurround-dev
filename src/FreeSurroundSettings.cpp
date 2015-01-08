@@ -18,13 +18,13 @@
  *
  */
 
-#include "xbmc/libXBMC_addon.h"
-#include "xbmc/libXBMC_adsp.h"
-#include "xbmc/libXBMC_gui.h"
+#include "kodi/libXBMC_addon.h"
+#include "kodi/libXBMC_adsp.h"
+#include "kodi/libXBMC_gui.h"
 
-#include "xbmc/util/XMLUtils.h"
-#include "xbmc/util/util.h"
-#include "xbmc/util/StdString.h"
+#include "kodi/util/XMLUtils.h"
+#include "kodi/util/util.h"
+#include "kodi/util/StdString.h"
 
 #include "FreeSurroundSettings.h"
 

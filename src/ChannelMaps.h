@@ -32,7 +32,7 @@
 #include <vector>
 #include <map>
 
-#include "xbmc/xbmc_adsp_types.h"
+#include "kodi/xbmc_adsp_types.h"
 
 /*
  * Identifier translation from FreeSurround to XBMC ADSP

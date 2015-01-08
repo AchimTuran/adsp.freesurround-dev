@@ -23,7 +23,7 @@
 #include <vector>
 #include <map>
 
-#include "xbmc/xbmc_adsp_types.h"
+#include "kodi/xbmc_adsp_types.h"
 #include "FreeSurroundDecoder.h"
 #include "FreeSurroundSettings.h"
 

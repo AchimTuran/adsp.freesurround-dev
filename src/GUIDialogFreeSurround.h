@@ -20,7 +20,7 @@
  *
  */
 
-#include "xbmc/util/StdString.h"
+#include "kodi/util/StdString.h"
 #include "client.h"
 #include "FreeSurroundSettings.h"
 

@@ -23,9 +23,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "xbmc/libXBMC_addon.h"
-#include "xbmc/libXBMC_adsp.h"
-#include "xbmc/util/StdString.h"
+#include "kodi/libXBMC_addon.h"
+#include "kodi/libXBMC_adsp.h"
+#include "kodi/util/StdString.h"
 
 #include "DSPProcessFreeSurround.h"
 #include "client.h"
