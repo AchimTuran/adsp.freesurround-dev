@@ -6,11 +6,11 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR})
 
 enable_language(CXX)
 
-find_package(xbmc REQUIRED)
-find_package(xbmcplatform REQUIRED)
+find_package(kodi REQUIRED)
+find_package(kodiplatform REQUIRED)
 
-include_directories(${xbmcplatform_INCLUDE_DIRS}
-                    ${XBMC_INCLUDE_DIR})
+include_directories(${kodiplatform_INCLUDE_DIRS}
+                    ${KODI_INCLUDE_DIR})
 
 set(FREESURROUND_SOURCES src/client.cpp
                          src/GUIDialogFreeSurround.cpp
@@ -21,7 +21,7 @@ set(FREESURROUND_SOURCES src/client.cpp
                          src/ChannelMaps.cpp
                          src/FreeSurroundDecoder.cpp)
 
-set(DEPLIBS ${xbmcplatform_LIBRARIES})
+set(DEPLIBS ${kodiplatform_LIBRARIES})
 
 build_addon(adsp.freesurround FREESURROUND DEPLIBS)
 
