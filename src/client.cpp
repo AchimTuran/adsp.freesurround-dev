@@ -39,14 +39,14 @@ using namespace ADDON;
  * Default values are defined inside client.h
  * and exported to the other source files.
  */
-std::string                                     g_strUserPath       = "";
-std::string                                     g_strAddonPath      = "";
-CDSPProcess_FreeSurround                       *g_usedDSPs[AE_DSP_STREAM_MAX_STREAMS];
-CHelper_libXBMC_addon                          *XBMC                = NULL;
-CHelper_libXBMC_adsp                           *ADSP                = NULL;
-CHelper_libXBMC_gui                            *GUI                 = NULL;
-ADDON_STATUS                                    m_CurStatus         = ADDON_STATUS_UNKNOWN;
-AE_DSP_MENUHOOK                                 m_MenuHook;
+std::string               g_strUserPath   = "";
+std::string               g_strAddonPath  = "";
+CHelper_libXBMC_addon    *XBMC            = NULL;
+CHelper_libXBMC_adsp     *ADSP            = NULL;
+CHelper_libXBMC_gui      *GUI             = NULL;
+ADDON_STATUS              m_CurStatus     = ADDON_STATUS_UNKNOWN;
+AE_DSP_MENUHOOK           m_MenuHook;
+CDSPProcess_FreeSurround *g_usedDSPs[AE_DSP_STREAM_MAX_STREAMS];
 struct AE_DSP_MODES::AE_DSP_MODE  m_ModeInfoStruct;
 
 extern "C" {
@@ -152,31 +152,6 @@ bool ADDON_HasSettings()
   return true;
 }
 
-unsigned int ADDON_GetSettings(ADDON_StructSetting ***sSet)
-{
-  (void) sSet; // Remove compiler warning
-  return 0;
-}
-
-ADDON_STATUS ADDON_SetSetting(const char *settingName, const void *settingValue)
-{
-  (void) settingName; (void) settingValue;
-  return ADDON_STATUS_OK;
-}
-
-void ADDON_Stop()
-{
-}
-
-void ADDON_FreeSettings()
-{
-}
-
-void ADDON_Announce(const char *flag, const char *sender, const char *message, const void *data)
-{
-  (void) flag; (void) sender; (void) message; (void) data; // Remove compiler warning
-}
-
 const char* GetAudioDSPAPIVersion(void)
 {
   static const char *strApiVersion = XBMC_AE_DSP_API_VERSION;
@@ -221,14 +196,8 @@ const char *GetDSPName(void)
 
 const char *GetDSPVersion(void)
 {
-  static CStdString strDSPVersion = "0.1";
-  return strDSPVersion.c_str();
-}
-
-const char *GetConnectionString(void)
-{
-  static const char *emptyStr = "";
-  return emptyStr;
+  static const char *strDSPVersion = "0.0.2";
+  return strDSPVersion;
 }
 
 AE_DSP_ERROR CallMenuHook(const AE_DSP_MENUHOOK &menuhook, const AE_DSP_MENUHOOK_DATA &item)
@@ -248,8 +217,9 @@ AE_DSP_ERROR StreamCreate(const AE_DSP_SETTINGS *addonSettings, const AE_DSP_STR
   AE_DSP_ERROR err = proc->StreamCreate(addonSettings, pProperties);
   if (err == AE_DSP_ERROR_NO_ERROR)
   {
-    handle->dataIdentifier = addonSettings->iStreamID;
-    handle->callerAddress = proc;
+    handle->dataIdentifier             = addonSettings->iStreamID;
+    handle->callerAddress              = proc;
+    g_usedDSPs[handle->dataIdentifier] = proc; //!< Still used in table to have identification on settings dialog
   }
   else
     delete proc;
@@ -274,18 +244,6 @@ AE_DSP_ERROR StreamIsModeSupported(const ADDON_HANDLE handle, AE_DSP_MODE_TYPE t
   return ((CDSPProcess_FreeSurround*)handle->callerAddress)->StreamIsModeSupported(type, mode_id, unique_db_mode_id);
 }
 
-AE_DSP_ERROR MasterProcessSetMode(const ADDON_HANDLE handle, AE_DSP_STREAMTYPE type, unsigned int client_mode_id, int unique_db_mode_id)
-{
-  (void) handle; (void) type; (void) client_mode_id; (void) unique_db_mode_id;
-  return AE_DSP_ERROR_NO_ERROR;
-}
-
-unsigned int MasterProcessNeededSamplesize(const ADDON_HANDLE handle)
-{
-  (void) handle;
-  return 0;
-}
-
 float MasterProcessGetDelay(const ADDON_HANDLE handle)
 {
   return ((CDSPProcess_FreeSurround*)handle->callerAddress)->StreamGetDelay();
@@ -301,29 +259,31 @@ int MasterProcessGetOutChannels(const ADDON_HANDLE handle, unsigned long &out_ch
   return ((CDSPProcess_FreeSurround*)handle->callerAddress)->StreamGetOutChannels(out_channel_present_flags);
 }
 
-const char *MasterProcessGetStreamInfoString(const ADDON_HANDLE handle)
-{
-  (void) handle;
-  return "";
-}
-
 /*!
  * Unused DSP addon functions
  */
-bool InputProcess(const ADDON_HANDLE handle, const float **array_in, unsigned int samples) { (void) handle; (void) array_in; (void) samples; return true; }
-unsigned int InputResampleProcessNeededSamplesize(const ADDON_HANDLE handle) { (void) handle; return 0; }
-int InputResampleSampleRate(const ADDON_HANDLE handle) { (void) handle; return 0; }
-float InputResampleGetDelay(const ADDON_HANDLE handle) { (void) handle; return 0.0; }
-unsigned int InputResampleProcess(const ADDON_HANDLE handle, float **array_in, float **array_out, unsigned int samples) { (void) handle; (void) array_in; (void) array_out; (void) samples;  return 0; }
-unsigned int PreProcessNeededSamplesize(const ADDON_HANDLE handle, unsigned int mode_id) { (void) handle; (void) mode_id; return 0; }
-float PreProcessGetDelay(const ADDON_HANDLE handle, unsigned int mode_id) { (void) handle; (void) mode_id; return 0.0; }
-unsigned int PreProcess(const ADDON_HANDLE handle, unsigned int mode_id, float **array_in, float **array_out, unsigned int samples) { (void) handle; (void) mode_id; (void) array_in; (void) array_out; (void) samples;  return 0; }
-unsigned int PostProcessNeededSamplesize(const ADDON_HANDLE handle, unsigned int mode_id) { (void) handle; (void) mode_id; return 0; }
-float PostProcessGetDelay(const ADDON_HANDLE handle, unsigned int mode_id) { (void) handle; (void) mode_id; return 0.0; }
-unsigned int PostProcess(const ADDON_HANDLE handle, unsigned int mode_id, float **array_in, float **array_out, unsigned int samples) { (void) handle; (void) mode_id; (void) array_in; (void) array_out; (void) samples;  return 0; }
-unsigned int OutputResampleProcessNeededSamplesize(const ADDON_HANDLE handle) { (void) handle; return 0; }
-int OutputResampleSampleRate(const ADDON_HANDLE handle) { (void) handle; return 0; }
-float OutputResampleGetDelay(const ADDON_HANDLE handle) { (void) handle; return 0; }
-unsigned int OutputResampleProcess(const ADDON_HANDLE handle, float **array_in, float **array_out, unsigned int samples) { (void) handle; (void) array_in; (void) array_out; (void) samples;  return 0; }
+unsigned int ADDON_GetSettings(ADDON_StructSetting ***sSet) { return 0; }
+ADDON_STATUS ADDON_SetSetting(const char *settingName, const void *settingValue) { return ADDON_STATUS_OK; }
+void ADDON_Stop() {}
+void ADDON_FreeSettings() {}
+void ADDON_Announce(const char *flag, const char *sender, const char *message, const void *data) {}
+bool InputProcess(const ADDON_HANDLE handle, const float **array_in, unsigned int samples) { return true; }
+unsigned int InputResampleProcessNeededSamplesize(const ADDON_HANDLE handle) { return 0; }
+int InputResampleSampleRate(const ADDON_HANDLE handle) { return 0; }
+float InputResampleGetDelay(const ADDON_HANDLE handle) { return 0.0f; }
+unsigned int InputResampleProcess(const ADDON_HANDLE handle, float **array_in, float **array_out, unsigned int samples) { return 0; }
+unsigned int PreProcessNeededSamplesize(const ADDON_HANDLE handle, unsigned int mode_id) { return 0; }
+float PreProcessGetDelay(const ADDON_HANDLE handle, unsigned int mode_id) { return 0.0f; }
+unsigned int PreProcess(const ADDON_HANDLE handle, unsigned int mode_id, float **array_in, float **array_out, unsigned int samples) { return 0; }
+AE_DSP_ERROR MasterProcessSetMode(const ADDON_HANDLE handle, AE_DSP_STREAMTYPE type, unsigned int client_mode_id, int unique_db_mode_id) { return AE_DSP_ERROR_NO_ERROR; }
+unsigned int MasterProcessNeededSamplesize(const ADDON_HANDLE handle) { return 0; }
+const char *MasterProcessGetStreamInfoString(const ADDON_HANDLE handle) { return ""; }
+unsigned int PostProcessNeededSamplesize(const ADDON_HANDLE handle, unsigned int mode_id) { return 0; }
+float PostProcessGetDelay(const ADDON_HANDLE handle, unsigned int mode_id) { return 0.0f; }
+unsigned int PostProcess(const ADDON_HANDLE handle, unsigned int mode_id, float **array_in, float **array_out, unsigned int samples) { return 0; }
+unsigned int OutputResampleProcessNeededSamplesize(const ADDON_HANDLE handle) { return 0; }
+int OutputResampleSampleRate(const ADDON_HANDLE handle) { return 0; }
+float OutputResampleGetDelay(const ADDON_HANDLE handle) { return 0.0f; }
+unsigned int OutputResampleProcess(const ADDON_HANDLE handle, float **array_in, float **array_out, unsigned int samples) { return 0; }
 
 }
