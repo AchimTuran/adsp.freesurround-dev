@@ -244,52 +244,34 @@ AE_DSP_ERROR CallMenuHook(const AE_DSP_MENUHOOK &menuhook, const AE_DSP_MENUHOOK
 
 AE_DSP_ERROR StreamCreate(const AE_DSP_SETTINGS *addonSettings, const AE_DSP_STREAM_PROPERTIES* pProperties, ADDON_HANDLE handle)
 {
-  if (g_usedDSPs[addonSettings->iStreamID])
-  {
-    delete g_usedDSPs[addonSettings->iStreamID];
-    g_usedDSPs[addonSettings->iStreamID] = NULL;
-  }
-
   CDSPProcess_FreeSurround *proc = new CDSPProcess_FreeSurround(addonSettings->iStreamID);
   AE_DSP_ERROR err = proc->StreamCreate(addonSettings, pProperties);
   if (err == AE_DSP_ERROR_NO_ERROR)
   {
-    g_usedDSPs[addonSettings->iStreamID] = proc;
     handle->dataIdentifier = addonSettings->iStreamID;
     handle->callerAddress = proc;
   }
   else
     delete proc;
-
   return err;
 }
 
 AE_DSP_ERROR StreamDestroy(const ADDON_HANDLE handle)
 {
-  AE_DSP_ERROR err = AE_DSP_ERROR_UNKNOWN;
-
-  if (g_usedDSPs[handle->dataIdentifier])
-  {
-    err = g_usedDSPs[handle->dataIdentifier]->StreamDestroy();
-    delete g_usedDSPs[handle->dataIdentifier];
-    g_usedDSPs[handle->dataIdentifier] = NULL;
-  }
+  AE_DSP_ERROR err = ((CDSPProcess_FreeSurround*)handle->callerAddress)->StreamDestroy();
+  delete ((CDSPProcess_FreeSurround*)handle->callerAddress);
+  g_usedDSPs[handle->dataIdentifier] = NULL;
   return err;
 }
 
 AE_DSP_ERROR StreamInitialize(const ADDON_HANDLE handle, const AE_DSP_SETTINGS *settings)
 {
-  AE_DSP_ERROR err = AE_DSP_ERROR_UNKNOWN;
-
-  if (g_usedDSPs[settings->iStreamID])
-    err = g_usedDSPs[settings->iStreamID]->StreamInitialize(settings);
-
-  return err;
+  return ((CDSPProcess_FreeSurround*)handle->callerAddress)->StreamInitialize(settings);
 }
 
 AE_DSP_ERROR StreamIsModeSupported(const ADDON_HANDLE handle, AE_DSP_MODE_TYPE type, unsigned int mode_id, int unique_db_mode_id)
 {
-  return g_usedDSPs[handle->dataIdentifier]->StreamIsModeSupported(type, mode_id, unique_db_mode_id);
+  return ((CDSPProcess_FreeSurround*)handle->callerAddress)->StreamIsModeSupported(type, mode_id, unique_db_mode_id);
 }
 
 AE_DSP_ERROR MasterProcessSetMode(const ADDON_HANDLE handle, AE_DSP_STREAMTYPE type, unsigned int client_mode_id, int unique_db_mode_id)
@@ -306,17 +288,17 @@ unsigned int MasterProcessNeededSamplesize(const ADDON_HANDLE handle)
 
 float MasterProcessGetDelay(const ADDON_HANDLE handle)
 {
-  return g_usedDSPs[handle->dataIdentifier]->StreamGetDelay();
+  return ((CDSPProcess_FreeSurround*)handle->callerAddress)->StreamGetDelay();
 }
 
 unsigned int MasterProcess(const ADDON_HANDLE handle, float **array_in, float **array_out, unsigned int samples)
 {
-  return g_usedDSPs[handle->dataIdentifier]->StreamProcess(array_in, array_out, samples);
+  return ((CDSPProcess_FreeSurround*)handle->callerAddress)->StreamProcess(array_in, array_out, samples);
 }
 
 int MasterProcessGetOutChannels(const ADDON_HANDLE handle, unsigned long &out_channel_present_flags)
 {
-  return g_usedDSPs[handle->dataIdentifier]->StreamGetOutChannels(out_channel_present_flags);
+  return ((CDSPProcess_FreeSurround*)handle->callerAddress)->StreamGetOutChannels(out_channel_present_flags);
 }
 
 const char *MasterProcessGetStreamInfoString(const ADDON_HANDLE handle)
