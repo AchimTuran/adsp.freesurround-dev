@@ -242,7 +242,7 @@ AE_DSP_ERROR CallMenuHook(const AE_DSP_MENUHOOK &menuhook, const AE_DSP_MENUHOOK
   return AE_DSP_ERROR_UNKNOWN;
 }
 
-AE_DSP_ERROR StreamCreate(const AE_DSP_SETTINGS *addonSettings, const AE_DSP_STREAM_PROPERTIES* pProperties)
+AE_DSP_ERROR StreamCreate(const AE_DSP_SETTINGS *addonSettings, const AE_DSP_STREAM_PROPERTIES* pProperties, ADDON_HANDLE handle)
 {
   if (g_usedDSPs[addonSettings->iStreamID])
   {
@@ -253,26 +253,31 @@ AE_DSP_ERROR StreamCreate(const AE_DSP_SETTINGS *addonSettings, const AE_DSP_STR
   CDSPProcess_FreeSurround *proc = new CDSPProcess_FreeSurround(addonSettings->iStreamID);
   AE_DSP_ERROR err = proc->StreamCreate(addonSettings, pProperties);
   if (err == AE_DSP_ERROR_NO_ERROR)
+  {
     g_usedDSPs[addonSettings->iStreamID] = proc;
+    handle->dataIdentifier = addonSettings->iStreamID;
+    handle->callerAddress = proc;
+  }
   else
     delete proc;
 
   return err;
 }
 
-AE_DSP_ERROR StreamDestroy(AE_DSP_STREAM_ID id)
+AE_DSP_ERROR StreamDestroy(const ADDON_HANDLE handle)
 {
   AE_DSP_ERROR err = AE_DSP_ERROR_UNKNOWN;
-  if (g_usedDSPs[id])
+
+  if (g_usedDSPs[handle->dataIdentifier])
   {
-    err = g_usedDSPs[id]->StreamDestroy();
-    delete g_usedDSPs[id];
-    g_usedDSPs[id] = NULL;
+    err = g_usedDSPs[handle->dataIdentifier]->StreamDestroy();
+    delete g_usedDSPs[handle->dataIdentifier];
+    g_usedDSPs[handle->dataIdentifier] = NULL;
   }
   return err;
 }
 
-AE_DSP_ERROR StreamInitialize(const AE_DSP_SETTINGS *settings)
+AE_DSP_ERROR StreamInitialize(const ADDON_HANDLE handle, const AE_DSP_SETTINGS *settings)
 {
   AE_DSP_ERROR err = AE_DSP_ERROR_UNKNOWN;
 
@@ -282,61 +287,61 @@ AE_DSP_ERROR StreamInitialize(const AE_DSP_SETTINGS *settings)
   return err;
 }
 
-AE_DSP_ERROR StreamIsModeSupported(AE_DSP_STREAM_ID id, AE_DSP_MODE_TYPE type, unsigned int mode_id, int unique_db_mode_id)
+AE_DSP_ERROR StreamIsModeSupported(const ADDON_HANDLE handle, AE_DSP_MODE_TYPE type, unsigned int mode_id, int unique_db_mode_id)
 {
-  return g_usedDSPs[id]->StreamIsModeSupported(type, mode_id, unique_db_mode_id);
+  return g_usedDSPs[handle->dataIdentifier]->StreamIsModeSupported(type, mode_id, unique_db_mode_id);
 }
 
-AE_DSP_ERROR MasterProcessSetMode(AE_DSP_STREAM_ID id, AE_DSP_STREAMTYPE type, unsigned int client_mode_id, int unique_db_mode_id)
+AE_DSP_ERROR MasterProcessSetMode(const ADDON_HANDLE handle, AE_DSP_STREAMTYPE type, unsigned int client_mode_id, int unique_db_mode_id)
 {
-  (void) id; (void) type; (void) client_mode_id; (void) unique_db_mode_id;
+  (void) handle; (void) type; (void) client_mode_id; (void) unique_db_mode_id;
   return AE_DSP_ERROR_NO_ERROR;
 }
 
-unsigned int MasterProcessNeededSamplesize(AE_DSP_STREAM_ID id)
+unsigned int MasterProcessNeededSamplesize(const ADDON_HANDLE handle)
 {
-  (void) id;
+  (void) handle;
   return 0;
 }
 
-float MasterProcessGetDelay(AE_DSP_STREAM_ID id)
+float MasterProcessGetDelay(const ADDON_HANDLE handle)
 {
-  return g_usedDSPs[id]->StreamGetDelay();
+  return g_usedDSPs[handle->dataIdentifier]->StreamGetDelay();
 }
 
-unsigned int MasterProcess(AE_DSP_STREAM_ID id, float **array_in, float **array_out, unsigned int samples)
+unsigned int MasterProcess(const ADDON_HANDLE handle, float **array_in, float **array_out, unsigned int samples)
 {
-  return g_usedDSPs[id]->StreamProcess(array_in, array_out, samples);
+  return g_usedDSPs[handle->dataIdentifier]->StreamProcess(array_in, array_out, samples);
 }
 
-int MasterProcessGetOutChannels(AE_DSP_STREAM_ID id, unsigned long &out_channel_present_flags)
+int MasterProcessGetOutChannels(const ADDON_HANDLE handle, unsigned long &out_channel_present_flags)
 {
-  return g_usedDSPs[id]->StreamGetOutChannels(out_channel_present_flags);
+  return g_usedDSPs[handle->dataIdentifier]->StreamGetOutChannels(out_channel_present_flags);
 }
 
-const char *MasterProcessGetStreamInfoString(AE_DSP_STREAM_ID id)
+const char *MasterProcessGetStreamInfoString(const ADDON_HANDLE handle)
 {
-  (void) id;
+  (void) handle;
   return "";
 }
 
 /*!
  * Unused DSP addon functions
  */
-bool InputProcess(AE_DSP_STREAM_ID id, const float **array_in, unsigned int samples) { (void) id; (void) array_in; (void) samples; return true; }
-unsigned int InputResampleProcessNeededSamplesize(AE_DSP_STREAM_ID id) { (void) id; return 0; }
-int InputResampleSampleRate(AE_DSP_STREAM_ID id) { (void) id; return 0; }
-float InputResampleGetDelay(AE_DSP_STREAM_ID id) { (void) id; return 0.0; }
-unsigned int InputResampleProcess(AE_DSP_STREAM_ID id, float **array_in, float **array_out, unsigned int samples) { (void) id; (void) array_in; (void) array_out; (void) samples;  return 0; }
-unsigned int PreProcessNeededSamplesize(AE_DSP_STREAM_ID id, unsigned int mode_id) { (void) id; (void) mode_id; return 0; }
-float PreProcessGetDelay(AE_DSP_STREAM_ID id, unsigned int mode_id) { (void) id; (void) mode_id; return 0.0; }
-unsigned int PreProcess(AE_DSP_STREAM_ID id, unsigned int mode_id, float **array_in, float **array_out, unsigned int samples) { (void) id; (void) mode_id; (void) array_in; (void) array_out; (void) samples;  return 0; }
-unsigned int PostProcessNeededSamplesize(AE_DSP_STREAM_ID id, unsigned int mode_id) { (void) id; (void) mode_id; return 0; }
-float PostProcessGetDelay(AE_DSP_STREAM_ID id, unsigned int mode_id) { (void) id; (void) mode_id; return 0.0; }
-unsigned int PostProcess(AE_DSP_STREAM_ID id, unsigned int mode_id, float **array_in, float **array_out, unsigned int samples) { (void) id; (void) mode_id; (void) array_in; (void) array_out; (void) samples;  return 0; }
-unsigned int OutputResampleProcessNeededSamplesize(AE_DSP_STREAM_ID id) { (void) id; return 0; }
-int OutputResampleSampleRate(AE_DSP_STREAM_ID id) { (void) id; return 0; }
-float OutputResampleGetDelay(AE_DSP_STREAM_ID id) { (void) id; return 0; }
-unsigned int OutputResampleProcess(AE_DSP_STREAM_ID id, float **array_in, float **array_out, unsigned int samples) { (void) id; (void) array_in; (void) array_out; (void) samples;  return 0; }
+bool InputProcess(const ADDON_HANDLE handle, const float **array_in, unsigned int samples) { (void) handle; (void) array_in; (void) samples; return true; }
+unsigned int InputResampleProcessNeededSamplesize(const ADDON_HANDLE handle) { (void) handle; return 0; }
+int InputResampleSampleRate(const ADDON_HANDLE handle) { (void) handle; return 0; }
+float InputResampleGetDelay(const ADDON_HANDLE handle) { (void) handle; return 0.0; }
+unsigned int InputResampleProcess(const ADDON_HANDLE handle, float **array_in, float **array_out, unsigned int samples) { (void) handle; (void) array_in; (void) array_out; (void) samples;  return 0; }
+unsigned int PreProcessNeededSamplesize(const ADDON_HANDLE handle, unsigned int mode_id) { (void) handle; (void) mode_id; return 0; }
+float PreProcessGetDelay(const ADDON_HANDLE handle, unsigned int mode_id) { (void) handle; (void) mode_id; return 0.0; }
+unsigned int PreProcess(const ADDON_HANDLE handle, unsigned int mode_id, float **array_in, float **array_out, unsigned int samples) { (void) handle; (void) mode_id; (void) array_in; (void) array_out; (void) samples;  return 0; }
+unsigned int PostProcessNeededSamplesize(const ADDON_HANDLE handle, unsigned int mode_id) { (void) handle; (void) mode_id; return 0; }
+float PostProcessGetDelay(const ADDON_HANDLE handle, unsigned int mode_id) { (void) handle; (void) mode_id; return 0.0; }
+unsigned int PostProcess(const ADDON_HANDLE handle, unsigned int mode_id, float **array_in, float **array_out, unsigned int samples) { (void) handle; (void) mode_id; (void) array_in; (void) array_out; (void) samples;  return 0; }
+unsigned int OutputResampleProcessNeededSamplesize(const ADDON_HANDLE handle) { (void) handle; return 0; }
+int OutputResampleSampleRate(const ADDON_HANDLE handle) { (void) handle; return 0; }
+float OutputResampleGetDelay(const ADDON_HANDLE handle) { (void) handle; return 0; }
+unsigned int OutputResampleProcess(const ADDON_HANDLE handle, float **array_in, float **array_out, unsigned int samples) { (void) handle; (void) array_in; (void) array_out; (void) samples;  return 0; }
 
 }
