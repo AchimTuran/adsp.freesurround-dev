@@ -21,7 +21,7 @@
 #include <vector>
 #include <string>
 #include "client.h"
-#include "kodi/xbmc_adsp_dll.h"
+#include "kodi/kodi_adsp_dll.h"
 #include "kodi/util/util.h"
 #include "kodi/util/StdString.h"
 #include "GUIDialogFreeSurround.h"
@@ -41,9 +41,9 @@ using namespace ADDON;
  */
 std::string               g_strUserPath   = "";
 std::string               g_strAddonPath  = "";
-CHelper_libXBMC_addon    *XBMC            = NULL;
-CHelper_libXBMC_adsp     *ADSP            = NULL;
-CHelper_libXBMC_gui      *GUI             = NULL;
+CHelper_libXBMC_addon    *KODI            = NULL;
+CHelper_libKODI_adsp     *ADSP            = NULL;
+CHelper_libKODI_guilib   *GUI             = NULL;
 ADDON_STATUS              m_CurStatus     = ADDON_STATUS_UNKNOWN;
 AE_DSP_MENUHOOK           m_MenuHook;
 CDSPProcess_FreeSurround *g_usedDSPs[AE_DSP_STREAM_MAX_STREAMS];
@@ -62,31 +62,31 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
 
   AE_DSP_PROPERTIES* adspprops = (AE_DSP_PROPERTIES*)props;
 
-  XBMC = new CHelper_libXBMC_addon;
-  if (!XBMC->RegisterMe(hdl))
+  KODI = new CHelper_libXBMC_addon;
+  if (!KODI->RegisterMe(hdl))
   {
-    SAFE_DELETE(XBMC);
+    SAFE_DELETE(KODI);
     return ADDON_STATUS_PERMANENT_FAILURE;
   }
 
-  GUI = new CHelper_libXBMC_gui;
+  GUI = new CHelper_libKODI_guilib;
   if (!GUI->RegisterMe(hdl))
   {
     SAFE_DELETE(GUI);
-    SAFE_DELETE(XBMC);
+    SAFE_DELETE(KODI);
     return ADDON_STATUS_PERMANENT_FAILURE;
   }
 
-  ADSP = new CHelper_libXBMC_adsp;
+  ADSP = new CHelper_libKODI_adsp;
   if (!ADSP->RegisterMe(hdl))
   {
     SAFE_DELETE(ADSP);
     SAFE_DELETE(GUI);
-    SAFE_DELETE(XBMC);
+    SAFE_DELETE(KODI);
     return ADDON_STATUS_PERMANENT_FAILURE;
   }
 
-  XBMC->Log(LOG_DEBUG, "%s - Creating the Audio DSP free surround add-on", __FUNCTION__);
+  KODI->Log(LOG_DEBUG, "%s - Creating the Audio DSP free surround add-on", __FUNCTION__);
 
   m_CurStatus     = ADDON_STATUS_UNKNOWN;
   g_strUserPath   = adspprops->strUserPath;
@@ -142,7 +142,7 @@ void ADDON_Destroy()
 
   SAFE_DELETE(ADSP);
   SAFE_DELETE(GUI);
-  SAFE_DELETE(XBMC);
+  SAFE_DELETE(KODI);
 
   m_CurStatus = ADDON_STATUS_UNKNOWN;
 }
@@ -154,26 +154,22 @@ bool ADDON_HasSettings()
 
 const char* GetAudioDSPAPIVersion(void)
 {
-  static const char *strApiVersion = XBMC_AE_DSP_API_VERSION;
-  return strApiVersion;
+  return KODI_AE_DSP_API_VERSION;
 }
 
 const char* GetMinimumAudioDSPAPIVersion(void)
 {
-  static const char *strMinApiVersion = XBMC_AE_DSP_MIN_API_VERSION;
-  return strMinApiVersion;
+  return KODI_AE_DSP_MIN_API_VERSION;
 }
 
 const char* GetGUIAPIVersion(void)
 {
-  static const char *strGuiApiVersion = XBMC_GUI_API_VERSION;
-  return strGuiApiVersion;
+  return KODI_GUILIB_API_VERSION;
 }
 
 const char* GetMinimumGUIAPIVersion(void)
 {
-  static const char *strMinGuiApiVersion = XBMC_GUI_MIN_API_VERSION;
-  return strMinGuiApiVersion;
+  return KODI_GUILIB_MIN_API_VERSION;
 }
 
 AE_DSP_ERROR GetAddonCapabilities(AE_DSP_ADDON_CAPABILITIES* pCapabilities)

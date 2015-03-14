@@ -15,7 +15,7 @@
     library_wingl="adsp.freesurround.dll"
     library_windx="adsp.freesurround.dll"
     library_android="libadsp.freesurround.so" />
-  <extension point="xbmc.addon.metadata">
+  <extension point="kodi.addon.metadata">
     <summary lang="en">Free Surround Audio DSP Processor</summary>
     <description lang="en">Free Surround Audio DSP Processor</description>
     <disclaimer lang="en">This is a open source audio dsp processing system</disclaimer>

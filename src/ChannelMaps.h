@@ -32,10 +32,10 @@
 #include <vector>
 #include <map>
 
-#include "kodi/xbmc_adsp_types.h"
+#include "kodi/kodi_adsp_types.h"
 
 /*
- * Identifier translation from FreeSurround to XBMC ADSP
+ * Identifier translation from FreeSurround to KODI ADSP
  *
  * ci_front_left          = AE_DSP_PRSNT_CH_FL
  * ci_front_center_left   = AE_DSP_PRSNT_CH_FLOC

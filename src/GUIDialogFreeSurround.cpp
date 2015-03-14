@@ -20,8 +20,8 @@
  */
 
 #include "kodi/libXBMC_addon.h"
-#include "kodi/libXBMC_adsp.h"
-#include "kodi/libXBMC_gui.h"
+#include "kodi/libKODI_adsp.h"
+#include "kodi/libKODI_guilib.h"
 
 #include "kodi/util/XMLUtils.h"
 #include "kodi/util/util.h"

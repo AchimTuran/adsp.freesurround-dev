@@ -19,8 +19,8 @@
  */
 
 #include "kodi/libXBMC_addon.h"
-#include "kodi/libXBMC_adsp.h"
-#include "kodi/libXBMC_gui.h"
+#include "kodi/libKODI_adsp.h"
+#include "kodi/libKODI_guilib.h"
 
 #include "kodi/util/XMLUtils.h"
 #include "kodi/util/util.h"
@@ -72,13 +72,13 @@ bool CDSPSettings::LoadSettingsData(bool initial)
     {
       if (!SaveSettingsData())
       {
-        XBMC->Log(LOG_ERROR, "failed to create initial settings data file at '%s')", strSettingsFile.c_str());
+        KODI->Log(LOG_ERROR, "failed to create initial settings data file at '%s')", strSettingsFile.c_str());
         return false;
       }
       return true;
     }
     else
-      XBMC->Log(LOG_ERROR, "invalid settings data (no/invalid data file found at '%s')", strSettingsFile.c_str());
+      KODI->Log(LOG_ERROR, "invalid settings data (no/invalid data file found at '%s')", strSettingsFile.c_str());
     return false;
   }
 
@@ -86,7 +86,7 @@ bool CDSPSettings::LoadSettingsData(bool initial)
   if (strcmp(pRootElement->Value(), "freesurround") != 0)
   {
     if (!initial)
-      XBMC->Log(LOG_ERROR, "invalid settings data (no <circlesurround2> tag found)");
+      KODI->Log(LOG_ERROR, "invalid settings data (no <circlesurround2> tag found)");
     return false;
   }
 
@@ -147,7 +147,7 @@ bool CDSPSettings::SaveSettingsData()
 
   if (!xmlDoc.SaveFile(GetSettingsFile()))
   {
-    XBMC->Log(LOG_ERROR, "failed to write circle surround 2 settings data");
+    KODI->Log(LOG_ERROR, "failed to write circle surround 2 settings data");
     return false;
   }
 

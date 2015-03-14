@@ -24,7 +24,7 @@
 #include <string.h>
 
 #include "kodi/libXBMC_addon.h"
-#include "kodi/libXBMC_adsp.h"
+#include "kodi/libKODI_adsp.h"
 #include "kodi/util/StdString.h"
 
 #include "DSPProcessFreeSurround.h"

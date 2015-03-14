@@ -16,11 +16,11 @@ override_dh_auto_configure:
 	dh_auto_configure -- -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=1 -DUSE_LTO=1
 
 override_dh_strip:
-	dh_strip --dbg-package=xbmc-audiodsp-freesurround-dbg
+	dh_strip --dbg-package=kodi-audiodsp-freesurround-dbg
 
 override_dh_auto_install:
-	dh_auto_install --destdir=debian/xbmc-audiodsp-freesurround
+	dh_auto_install --destdir=debian/kodi-audiodsp-freesurround
 
 override_dh_installdocs:
-	dh_installdocs --link-doc=xbmc-audiodsp-freesurround
+	dh_installdocs --link-doc=kodi-audiodsp-freesurround
 
